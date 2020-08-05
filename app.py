@@ -47,7 +47,6 @@ from bokeh.layouts import column
 from sklearn import tree
 from wtforms import Form, TextAreaField, validators
 from html import unescape
-import enchant
 from spacy.lang.en.stop_words import STOP_WORDS
 from bokeh.models import Div
 from sklearn.tree import DecisionTreeRegressor
@@ -86,13 +85,12 @@ def clean_text(text):
 
 
 nlp=spacy.load('en_core_web_md')
-d = enchant.Dict("en_US")
 nlp.Defaults.stop_words |= {"player","players","de","de la","o","y","publishers","publisher","und","por","puntos","play","description","designer","end","board","card","game","edition","new","like","set","try","way","rule","design","feature","box"}
 def my_preprocessor(doc):
     return(unescape(doc).lower())
 def my_tokenizer(doc):
     tokens = nlp(doc)
-    return([token.lemma_ for token in tokens if token.is_stop == False and token.text.isalpha() == True and d.check(token.text)==True])
+    return([token.lemma_ for token in tokens if token.is_stop == False and token.text.isalpha() == True])
 
 def modelprediction(tstr,df,knmodel,rmodel):
     vect=nlp(tstr).vector.reshape(1,-1)
