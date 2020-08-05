@@ -85,7 +85,7 @@ def clean_text(text):
     return text.strip().lower()
 
 
-nlp=spacy.load('en_core_web_lg')
+nlp=spacy.load('en_core_web_md')
 d = enchant.Dict("en_US")
 nlp.Defaults.stop_words |= {"player","players","de","de la","o","y","publishers","publisher","und","por","puntos","play","description","designer","end","board","card","game","edition","new","like","set","try","way","rule","design","feature","box"}
 def my_preprocessor(doc):
