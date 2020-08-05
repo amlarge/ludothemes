@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Board Game App</title>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.1.1.min.js"
+  crossorigin="anonymous"></script>
+  <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.1.1.min.js"
+  crossorigin="anonymous"></script>
+  <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.1.1.min.js"
+  crossorigin="anonymous"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <!-- Font Awesome icons (free version)-->
+  <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" crossorigin="anonymous"></script>
+  <!-- Google fonts-->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+  <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+  <!-- Core theme CSS (includes Bootstrap)-->
+  <link href="../static/css/styles.css?version=2" rel="stylesheet" />
+</head>
+<body id="page-top">
+  <!-- Navigation-->
+  <nav class="navbar navbar-expand-lg fixed-top navbar-light nav" id="mainNav">
+    <div class="container-fluid">
+      <!---<a class="navbar-brand js-scroll-trigger" href="#page-top"><img src="assets/img/navbar-logo.svg" alt="" /></a>--->
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        Menu
+        <i class="fas fa-bars ml-1"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav text-uppercase ml-auto">
+          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('index') }}">Home</a></li>
+          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('graphs',w1='Dinosaurs') }}">LudoThemes</a></li>
+          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('contacts') }}">About</a></li>
+          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="https://github.com/amlarge/flask-framework">Github Repo</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- Masthead-->
+  <header class="masthead">
+    <div class="container">
+      <div class="masthead-heading text-uppercase">LudoThemes</div>
+      <div class="masthead-subheading">The Board Game Theme Lookup</div>
+      <a class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" href="#services">Theme Search</a>
+    </div>
+  </header>
+
+
+
+  <!-- Services-->
+  <!-- <section class="page-section" id="services">
+  <div class="container">
+  <div class="text-center">
+  <h2 class="section-heading text-uppercase">Services</h2>
+  <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
+</div>
+<div class="row text-center">
+<div class="col-md-4">
+<span class="fa-stack fa-4x">
+<i class="fas fa-circle fa-stack-2x text-primary"></i>
+<i class="fas fa-shopping-cart fa-stack-1x fa-inverse"></i>
+</span>
+<h4 class="my-3">E-Commerce</h4>
+<p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.</p>
+</div>
+<div class="col-md-4">
+<span class="fa-stack fa-4x">
+<i class="fas fa-circle fa-stack-2x text-primary"></i>
+<i class="fas fa-laptop fa-stack-1x fa-inverse"></i>
+</span>
+<h4 class="my-3">Responsive Design</h4>
+<p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.</p>
+</div>
+<div class="col-md-4">
+<span class="fa-stack fa-4x">
+<i class="fas fa-circle fa-stack-2x text-primary"></i>
+<i class="fas fa-lock fa-stack-1x fa-inverse"></i>
+</span>
+<h4 class="my-3">Web Security</h4>
+<p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.</p>
+</div>
+</div>
+</div>
+</section> -->
+<!-- Portfolio Grid-->
+<section class="page-section bg-light" id="portfolio">
+  <div class="container">
+    <div class="text-center">
+      <h2 class="section-heading text-uppercase">Board Game Theme Search</h2>
+      <h3 class="section-subheading text-muted">An app to search through game themes on <a href="http://www.boardgamegeek.com">BoardGameGeek.com</a></h3>
+
+      <p><h3 class="section-subheading text-muted">Not sure where to begin? Here are some themes that have been hot recently:</h3>
+      </div>
+      <div class="row">
+
+        <div class="col-lg-4 col-sm-6 mb-4">
+          <div class="portfolio-item">
+            <a class="portfolio-link" href="{{ url_for('graphs',w1='Gardening') }}">
+
+              <img class="img-fluid px-0" src="https://cf.geekdo-images.com/itemrep/img/8izilUtCMcX2OpsJ1wRKTCwGnik=/fit-in/246x300/pic3048690.jpg" alt="" />
+            </a>
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Gardening</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-sm-6 mb-4">
+          <div class="portfolio-item">
+            <a class="portfolio-link" href="{{ url_for('graphs',w1='Cthulhu Mythos') }}">
+
+              <img class="img-fluid" src="https://cf.geekdo-images.com/itemrep/img/u3xLien-i-nOql7ePh8m4FhHbWM=/fit-in/246x300/pic4582151.jpg" alt="" />
+            </a>
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Cthulhu</div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-lg-4 col-sm-6 mb-4">
+          <div class="portfolio-item">
+
+            <a class="portfolio-link" href="{{ url_for('graphs',w1='Cthulhu Mythos') }}">
+
+              <img class="img-fluid" src="https://cf.geekdo-images.com/itemrep/img/OEIIISWeTFkcM0XU0HRL-WZlozI=/fit-in/246x300/pic3652437.jpg" alt="" />
+            </a>
+
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Art</div>
+            </div>
+
+          </div>
+        </div>
+
+
+
+        <div class="col-lg-4 col-sm-6 mb-4 mb-lg-0">
+          <div class="portfolio-item">
+            <a class="portfolio-link" href="{{ url_for('graphs',w1='Mesopotamia') }}">
+
+              <img class="img-fluid" src="https://cf.geekdo-images.com/itemrep/img/pdfQvEYy3V-K0myNBCLH5svaiZA=/fit-in/246x300/pic2338267.jpg" alt="" />
+            </a>
+
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Mesopotamia</div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-lg-4 col-sm-6 mb-4 mb-sm-0">
+          <div class="portfolio-item">
+            <a class="portfolio-link"  href="{{ url_for('graphs',w1='China') }}">
+
+              <img class="img-fluid" src="https://cf.geekdo-images.com/itemrep/img/aOKmJu7AV201mHaFUtd3VUDBKtU=/fit-in/246x300/pic4143114.jpg" alt="" />
+            </a>
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">China</div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-lg-4 col-sm-6">
+          <div class="portfolio-item">
+            <a class="portfolio-link"  href="{{ url_for('graphs',w1='Mining') }}">
+
+              <img class="img-fluid" src="https://cf.geekdo-images.com/itemrep/img/HOUyaC-JSlwtiCCx_4IQkAxovCA=/fit-in/246x300/pic4421569.jpg" alt="" />
+            </a>
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Mining</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- About-->
+
+  <!-- Bootstrap core JS-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="static/js/scrolling-nav.js"></script>
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+  <!-- Third party plugin JS-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+  <!-- Contact form JS-->
+  <script src="static/js/jqBootstrapValidation.js"></script>
+  <script src="static/js/contact_me.js"></script>
+  <!-- Core theme JS-->
+  <script src="static/js/scripts.js"></script>
+</body>
+</html>
