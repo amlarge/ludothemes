@@ -84,7 +84,7 @@ def clean_text(text):
     return text.strip().lower()
 
 
-nlp=spacy.load('en_core_web_md')
+nlp=spacy.load('en_core_web_lg')
 nlp.Defaults.stop_words |= {"player","players","de","de la","o","y","publishers","publisher","und","por","puntos","play","description","designer","end","board","card","game","edition","new","like","set","try","way","rule","design","feature","box"}
 def my_preprocessor(doc):
     return(unescape(doc).lower())
@@ -259,7 +259,7 @@ def graphs(w1='Dinosaur'):
         #P2=makeplot(word2,FDF,nn,sf,cols[1])
         k=wordmodel(games)
         suggestions=suggestwordsdiv(k,word1)
-        metaplot=row(P1,suggestions,sizing_mode='stretch_both')
+        metaplot=row(P1,suggestions)
         pscript,pdiv = components(metaplot)
         return render_template('graphs.html',plot_script=pscript,plot_div=pdiv,word1=word1)
 
@@ -269,4 +269,4 @@ def graphs(w1='Dinosaur'):
 #  return render_template('about.html')
 
 if __name__ == '__main__':
-  app.run(port=5000, debug=True)
+  app.run(host='0.0.0.0', port=5000)

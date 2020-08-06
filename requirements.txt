@@ -1,7 +1,7 @@
 gunicorn==19.9.0
 requests==2.20.0
 pandas
-bokeh==2.1.0
+bokeh==2.1
 dill
 flask
 jinja2
@@ -11,12 +11,12 @@ pandas
 nltk
 statsmodels
 numpy
-spacy
+spacy==2.3.0
 scikit-learn
 wtforms
 pyenchant
 sqlalchemy
 scipy
 nltk
-https://github.com/explosion/spacy-models/releases/download/en_core_web_md-2.2.0/en_core_web_md-2.2.0.tar.gz#egg=en_core_web_md
+https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-2.3.0/en_core_web_lg-2.3.0.tar.gz#egg=en_core_web_lg
 matplotlib
