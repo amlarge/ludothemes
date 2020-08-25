@@ -1,13 +1,10 @@
 from flask import Flask,request, render_template
 import requests
 import scipy.io
-#import matplotlib.pyplot as plt
-#import matplotlib
 from sklearn.svm import SVR
 import pandas as pd
 import numpy as np
 import bokeh
-from bokeh.io import output_notebook, show
 from bokeh.plotting import figure
 import pickle
 import sys
@@ -26,9 +23,7 @@ import math
 from sqlalchemy import create_engine
 from bokeh.models import Band, ColumnDataSource, Div
 from bokeh.models import HoverTool, Legend, LegendItem,Span, DatetimeTickFormatter, ColumnDataSource, NumeralTickFormatter, Band
-from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.base import TransformerMixin
-from sklearn.preprocessing import MultiLabelBinarizer
 from bokeh.embed import components
 from bokeh.layouts import row,column
 from sklearn import tree
@@ -38,16 +33,18 @@ from gensim import similarities, models, corpora
 from gensim.test.utils import common_corpus, common_dictionary, get_tmpfile
 from gensim.models import LsiModel
 from gensim.corpora import Dictionary
+from sklearn.metrics import mean_squared_error
 #import en_core_web_md
 app = Flask(__name__)
 engine = create_engine('postgres://obqsggxkfbiuiy:d654a360eaae8e0a9f75cc9267b9ea53a31bd19459ff4e2e611f8f7a1e8a88e5@ec2-107-22-7-9.compute-1.amazonaws.com:5432/d4rgvoavujbpo2')
-FDF=pd.read_sql('SELECT * FROM games',engine)
 sf=SVR(kernel='rbf',C=50)
 
 simindex = similarities.MatrixSimilarity.load('test.index')
 lsi_model=LsiModel.load('bigram_lsi_mod.model')
 
 gamesdict=Dictionary.load('bigram_dict.dict')
+
+
 cols=['#af8dc3','#7fbf7b']
 with open('listfile.data', 'rb') as filehandle:
     # read the data as binary data stream
@@ -89,7 +86,7 @@ def my_tokenizer(doc):
     return doc
 
 
-def modelprediction(tstr,df,rmodel):
+def modelprediction(tstr,rmodel):
 
 
     vec_bow = gamesdict.doc2bow(tstr.lower().split())
@@ -97,8 +94,11 @@ def modelprediction(tstr,df,rmodel):
     sims=simindex[vec_lsi]
     sims = sorted(enumerate(sims), key=lambda item: -item[1])
     rels=[x[0] for x in sims[:100]]
-    mdf=df.copy()
-    mdf=mdf.iloc[rels,]
+
+    gameindex = rels
+    queryString = 'SELECT * FROM games WHERE level_0 = ANY(%(gameindex)s)'
+    queryParams = {'gameindex': gameindex}
+    mdf=pd.read_sql(queryString, engine, params = queryParams)
 
 
     rmodel.fit(np.array(mdf['year']).reshape(-1,1),mdf['interest'])
@@ -231,7 +231,7 @@ def graphs(w1='Gardening'):
 
     if request.method == 'GET':
 
-        Dy,P,games,se,rels=modelprediction(w1,FDF,sf)
+        Dy,P,games,se,rels=modelprediction(w1,sf)
         P1=makeplot(w1,Dy,P,games,se,cols[0])
 
         k=wordmodel(games)
@@ -253,7 +253,7 @@ def graphs(w1='Gardening'):
         #dataframe=update_figure(re.split(',',word.lower()))
 
 
-        Dy,P,games,se,rels=modelprediction(word1,FDF,sf)
+        Dy,P,games,se,rels=modelprediction(word1,sf)
 
         P1=makeplot(word1,Dy,P,games,se,cols[0])
         #P2=makeplot(word2,FDF,nn,sf,cols[1])
