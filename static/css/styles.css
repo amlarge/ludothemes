@@ -9948,6 +9948,7 @@ h2,
 h3 {
     orphans: 3;
     widows: 3;
+
   }
 
   h2,
@@ -10486,6 +10487,7 @@ section#team {
 section#team h2{
 
   color: black;
+  margin-bottom:2rem;
 }
 
 section#team h4{
@@ -10494,9 +10496,16 @@ section#team h4{
 
 section#team h3{
 
-  font-size: 20px
+  font-size: 20px;
+  margin-bottom:1rem;
+  font-weight: 700;
 }
 
+section#info h3{
+  color: black;
+  font-size: 15px;
+  
+}
 section#team .container{
 
   align-items: center;

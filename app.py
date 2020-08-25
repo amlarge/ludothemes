@@ -1,13 +1,10 @@
 from flask import Flask,request, render_template
 import requests
 import scipy.io
-import matplotlib.pyplot as plt
-import matplotlib
+#import matplotlib.pyplot as plt
+#import matplotlib
 from sklearn.svm import SVR
 import pandas as pd
-from sklearn.linear_model import SGDRegressor
-from sklearn.linear_model import Ridge
-from sklearn.linear_model import ElasticNetCV
 import numpy as np
 import bokeh
 from bokeh.io import output_notebook, show
@@ -16,41 +13,49 @@ import pickle
 import sys
 import sqlite3
 import pandas as pd
+import os
 from sklearn.feature_extraction.text import CountVectorizer,TfidfVectorizer
-from sklearn.base import TransformerMixin
 import string
-import spacy
-#from spacy.lang.en.stop_words import STOP_WORDS
-#from spacy.lang.en import English
+import psycopg2
 import re
-from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn import base, svm
 import math
-from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sqlalchemy import create_engine
-from sklearn.neighbors import NearestNeighbors
-from sklearn.multioutput import MultiOutputClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from bokeh.models import Band, ColumnDataSource
+from bokeh.models import Band, ColumnDataSource, Div
 from bokeh.models import HoverTool, Legend, LegendItem,Span, DatetimeTickFormatter, ColumnDataSource, NumeralTickFormatter, Band
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-from sklearn.multioutput import MultiOutputClassifier
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.base import TransformerMixin
 from sklearn.preprocessing import MultiLabelBinarizer
 from bokeh.embed import components
-from bokeh.layouts import row
-from bokeh.layouts import column
+from bokeh.layouts import row,column
 from sklearn import tree
 from wtforms import Form, TextAreaField, validators
 from html import unescape
-from spacy.lang.en.stop_words import STOP_WORDS
-from bokeh.models import Div
-from sklearn.tree import DecisionTreeRegressor
+from gensim import similarities, models, corpora
+from gensim.test.utils import common_corpus, common_dictionary, get_tmpfile
+from gensim.models import LsiModel
+from gensim.corpora import Dictionary
+#import en_core_web_md
 app = Flask(__name__)
+engine = create_engine('postgres://obqsggxkfbiuiy:d654a360eaae8e0a9f75cc9267b9ea53a31bd19459ff4e2e611f8f7a1e8a88e5@ec2-107-22-7-9.compute-1.amazonaws.com:5432/d4rgvoavujbpo2')
+FDF=pd.read_sql('SELECT * FROM games',engine)
+sf=SVR(kernel='rbf',C=50)
+
+simindex = similarities.MatrixSimilarity.load('test.index')
+lsi_model=LsiModel.load('bigram_lsi_mod.model')
+
+gamesdict=Dictionary.load('bigram_dict.dict')
+cols=['#af8dc3','#7fbf7b']
+with open('listfile.data', 'rb') as filehandle:
+    # read the data as binary data stream
+    stoplist = pickle.load(filehandle)
+
+def clean_text(text):
+    # Removing spaces and converting text into lowercase
+    return text.strip().lower()
 
 class yearpredictor(TransformerMixin):
     def transform(self, X, **transform_params):
@@ -78,33 +83,53 @@ class textpredictor(TransformerMixin):
     def get_params(self, deep=True):
         return {}
 
-# Basic function to clean the text
-def clean_text(text):
-    # Removing spaces and converting text into lowercase
-    return text.strip().lower()
-
-
-nlp=spacy.load('en_core_web_lg')
-nlp.Defaults.stop_words |= {"player","players","de","de la","o","y","publishers","publisher","und","por","puntos","play","description","designer","end","board","card","game","edition","new","like","set","try","way","rule","design","feature","box"}
 def my_preprocessor(doc):
     return(unescape(doc).lower())
 def my_tokenizer(doc):
-    tokens = nlp(doc)
-    return([token.lemma_ for token in tokens if token.is_stop == False and token.text.isalpha() == True])
+    return doc
 
-def modelprediction(tstr,df,knmodel,rmodel):
-    vect=nlp(tstr).vector.reshape(1,-1)
-    x,y=knmodel.kneighbors(vect,return_distance=True)
+
+def modelprediction(tstr,df,rmodel):
+
+
+    vec_bow = gamesdict.doc2bow(tstr.lower().split())
+    vec_lsi = lsi_model[vec_bow]
+    sims=simindex[vec_lsi]
+    sims = sorted(enumerate(sims), key=lambda item: -item[1])
+    rels=[x[0] for x in sims[:100]]
     mdf=df.copy()
-    mdf=mdf.iloc[y.flatten(),]
+    mdf=mdf.iloc[rels,]
+
+
     rmodel.fit(np.array(mdf['year']).reshape(-1,1),mdf['interest'])
-
     dyears=np.unique(mdf['year'])
-
     pred=rmodel.predict(dyears.reshape(-1,1))
     se=2*math.sqrt(mean_squared_error(rmodel.predict(np.array(mdf['year']).reshape(-1,1)),mdf.interest)/len(mdf.interest))
 
-    return dyears,pred,mdf,se
+    return dyears,pred,mdf,se,rels
+
+
+def wordmodel(mdf):
+    ts=textpredictor('description')
+    wt=CountVectorizer(stop_words=stoplist,preprocessor=my_preprocessor,ngram_range=(1,2),min_df=.1,max_df=.8)
+    yp=yearpredictor()
+
+    desc=Pipeline([('selector',ts),('vect',wt)])
+    year=Pipeline([('sel',yp)])
+
+    feats=FeatureUnion([('desc',desc),('year',year)])
+
+    int_est=Pipeline([('features',feats),('reg',RandomForestRegressor(max_depth=5))])
+    int_est.fit(mdf,mdf['interest'])
+
+    featslist=int_est['features'].transformer_list[0][1].named_steps['vect'].get_feature_names()
+    featslist.append('year')
+    feat_importances = pd.Series(int_est['reg'].feature_importances_, index=featslist)
+    FI=feat_importances.drop(['year'])
+    keywords=FI.nlargest(10).index.tolist()
+
+    return keywords
+
 
 def setupplot(datayears,pred,df,se):
     source = ColumnDataSource({
@@ -152,7 +177,7 @@ def makeplot(textinput,Dy,P,games,se,color):
     LegendItem(label="Prediction",renderers=[pline1]),
     LegendItem(label="2*SE",renderers=[shade1]),
     LegendItem(label="Average Interest",renderers=[hline1])
-    ],location='bottom_left', label_text_font_size='1.6em',glyph_height=20,glyph_width=20)
+    ],location='bottom_left', label_text_font_size='1em',glyph_height=10,glyph_width=10)
 
 
     Plot1.add_layout(legend1)
@@ -173,31 +198,8 @@ def makeplot(textinput,Dy,P,games,se,color):
     Plot1.yaxis.ticker = [ -3, 0, 3 ]
 
     return Plot1
-def wordmodel(mdf):
-    ts=textpredictor('description')
-    wt=CountVectorizer(tokenizer=my_tokenizer,preprocessor=my_preprocessor,stop_words=STOP_WORDS,ngram_range=(1,2),min_df=.1,max_df=.8)
-    yp=yearpredictor()
 
-    desc=Pipeline([('selector',ts),('vect',wt)])
-    year=Pipeline([('sel',yp)])
-
-    feats=FeatureUnion([('desc',desc),('year',year)])
-
-    int_est=Pipeline([('features',feats),('reg',RandomForestRegressor(max_depth=5))])
-    int_est.fit(mdf,mdf['interest'])
-
-    featslist=int_est['features'].transformer_list[0][1].named_steps['vect'].get_feature_names()
-    featslist.append('year')
-    feat_importances = pd.Series(int_est['reg'].feature_importances_, index=featslist)
-    FI=feat_importances.drop(['year'])
-    keywords=FI.nlargest(10).index.tolist()
-
-    return keywords
-
-engine = create_engine('sqlite:///games_big.db', echo=True)
-FDF=pd.read_sql_query("SELECT * FROM games;",engine)
-
-def suggestwordsdiv(keywords,root):
+def suggestwordsdiv(keywords,root,rels):
     out=''
     for i in range(len(keywords)): # loop through all elements of the list in the "lines" list using the index 'i'
         out += '<h5>'+str(i+1)+ '. '+'<a class="suggestions" href="/graphs/' +root +' ' +keywords[i]+'">' + keywords[i]+'</a></h5>'
@@ -208,35 +210,32 @@ def suggestwordsdiv(keywords,root):
 
     return div
 
-nn=pickle.load(open('nearestneighbors','rb'))
 
-sf=SVR(kernel='rbf',C=50)
 
-cols=['#af8dc3','#7fbf7b']
-#
-# class HelloForm(Form):
-# 	sayhello = TextAreaField('')
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
+@app.route('/info')
+def info():
+    return render_template('info.html')
 @app.route('/contacts')
 def contacts():
     return render_template('contacts.html')
 
 @app.route('/graphs',methods=['POST'])
 @app.route('/graphs/<w1>',methods=['GET'])
-def graphs(w1='Dinosaur'):
+def graphs(w1='Gardening'):
     # form = HelloForm(request.form)
 
 
     if request.method == 'GET':
-        Dy,P,games,se=modelprediction(w1,FDF,nn,sf)
+
+        Dy,P,games,se,rels=modelprediction(w1,FDF,sf)
         P1=makeplot(w1,Dy,P,games,se,cols[0])
 
         k=wordmodel(games)
-        suggestions=suggestwordsdiv(k,w1)
+        suggestions=suggestwordsdiv(k,w1,rels)
         metaplot=row(P1,suggestions)
         pscript,pdiv = components(metaplot)
         #P2=makeplot(w2,FDF,nn,sf,cols[1])
@@ -245,6 +244,7 @@ def graphs(w1='Dinosaur'):
         return render_template('graphs.html',plot_script=pscript,plot_div=pdiv,w1=w1)
 
     else:
+
         word1 = request.form['theme1']
         if word1 == None:
             word1="cowboy"
@@ -253,12 +253,12 @@ def graphs(w1='Dinosaur'):
         #dataframe=update_figure(re.split(',',word.lower()))
 
 
-        Dy,P,games,se=modelprediction(word1,FDF,nn,sf)
+        Dy,P,games,se,rels=modelprediction(word1,FDF,sf)
 
         P1=makeplot(word1,Dy,P,games,se,cols[0])
         #P2=makeplot(word2,FDF,nn,sf,cols[1])
         k=wordmodel(games)
-        suggestions=suggestwordsdiv(k,word1)
+        suggestions=suggestwordsdiv(k,word1,rels)
         metaplot=row(P1,suggestions)
         pscript,pdiv = components(metaplot)
         return render_template('graphs.html',plot_script=pscript,plot_div=pdiv,word1=word1)
@@ -269,4 +269,4 @@ def graphs(w1='Dinosaur'):
 #  return render_template('about.html')
 
 if __name__ == '__main__':
-  app.run(host='0.0.0.0', port=5000)
+  app.run(host='0.0.0.0', port=5000,debug=True)

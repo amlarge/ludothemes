@@ -29,7 +29,7 @@
   <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
   <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
   <!-- Core theme CSS (includes Bootstrap)-->
-  <link href="../static/css/styles.css?version=9" rel="stylesheet" />
+  <link href="../static/css/styles.css?version=12" rel="stylesheet" />
 
 </head>
 <body id="page-top">
@@ -44,9 +44,10 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav text-uppercase ml-auto">
           <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('index') }}">Home</a></li>
-          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('graphs',w1='Dinosaurs') }}">LudoThemes</a></li>
+          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('graphs',w1='Gardening') }}">LudoThemes</a></li>
           <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('contacts') }}">About</a></li>
           <li class="nav-item"><a class="nav-link js-scroll-trigger" href="https://github.com/amlarge/flask-framework">Github Repo</a></li>
+          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('info') }}">Model Info</a></li>
         </ul>
       </div>
     </div>
@@ -59,10 +60,9 @@
         <div class="container">
 
                 <h2 class="section-heading text-uppercase">Contact Me</h2>
-
                 <div class="container">
-                <h3 class="section-subheading text-muted">GitHub: https://github.com/amlarge/boardgame-webapp</h3>
-                <h3 class="section-subheading text-muted">LinkedIn: https://www.linkedin.com/in/adam-large-559bb313/</h3>
+                <h3 class="section-subheading text-muted">GitHub: <a href="https://github.com/amlarge/ludothemes">https://github.com/amlarge/ludothemes</a></h3>
+                <h3 class="section-subheading text-muted">LinkedIn: <a href="https://www.linkedin.com/in/adam-large-559bb313/">https://www.linkedin.com/in/adam-large-559bb313</a></h3>
                 <h3 class="section-subheading text-muted">Email: adam.large@mb.thedataincubator.com</h3>
 </div>
 

@@ -8,15 +8,13 @@ jinja2
 pip
 simplejson
 pandas
-nltk
 statsmodels
 numpy
-spacy==2.3.0
 scikit-learn
 wtforms
 pyenchant
 sqlalchemy
 scipy
-nltk
-https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-2.3.0/en_core_web_lg-2.3.0.tar.gz#egg=en_core_web_lg
 matplotlib
+psycopg2
+gensim

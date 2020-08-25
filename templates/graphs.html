@@ -29,7 +29,7 @@
   <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
   <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
   <!-- Core theme CSS (includes Bootstrap)-->
-  <link href="../static/css/styles.css?version=9" rel="stylesheet" />
+  <link href="../static/css/styles.css?version=11" rel="stylesheet" />
 
 </head>
 <body id="page-top">
@@ -44,9 +44,10 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav text-uppercase ml-auto">
           <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('index') }}">Home</a></li>
-          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('graphs',w1='Dinosaurs') }}">LudoThemes</a></li>
+          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('graphs',w1='Gardening') }}">LudoThemes</a></li>
           <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('contacts') }}">About</a></li>
           <li class="nav-item"><a class="nav-link js-scroll-trigger" href="https://github.com/amlarge/flask-framework">Github Repo</a></li>
+          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="{{ url_for('info') }}">Model Info</a></li>
         </ul>
       </div>
     </div>
@@ -60,7 +61,7 @@
         <div class="text-center">
           <h3 class="section-subheading text-muted">Type your description here:</h3>
         </div>
-        <form id="contactForm" method='post' action='/graphs'>
+        <!-- <form id="contactForm" method='post' action='/graphs'>
 
           <div class="text-center">
             <div class="form-group form-group-textarea">
@@ -72,6 +73,11 @@
           <div id="success"></div>
           <button class="btn btn-primary btn-lg text-uppercase" id="sendMessageButton" type="submit">Submit</button>
         </div>
+      </form> -->
+
+      <form id='message' method='post' action='/graphs'>
+      <p>Search Terms: <input type='text' name='theme1' placeholder="Description" /></p>
+      <p><input type="submit" value="Submit"></p>
       </form>
     </div>
 
